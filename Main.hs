@@ -6,6 +6,7 @@ import Data.Maybe
 import Internal
 import Types
 import Test
+import Params
 import Vector
 import GHC.Float
 import Control.Monad.State.Lazy
@@ -59,7 +60,7 @@ loop can = do
 
 main :: IO ()
 main = do
-    canvas <- mkCanvas 500 500
+    canvas <- mkCanvas world_w world_h
     addChild canvas documentBody
     Just can <- getCanvas canvas
     evalState (loop can) testWorldBlob
