@@ -11,6 +11,7 @@ module Internal (
 import Types
 import Params
 import Vector
+import Data.List
 import Data.Maybe
 import Data.Graph.Inductive.Graph as G
 import Data.Graph.Inductive.PatriciaTree as PT
@@ -28,7 +29,7 @@ data Spring = Spring {
       springConst :: Float
     , eqDist      :: Float
     , damping     :: Float -- Damping ratio
-    }
+    } deriving (Eq)
 
 -- A World is a wrapper around a DynGraph, plus some world-y information
 data World = World {
@@ -70,10 +71,8 @@ updateWorld timeStep = do
 -- Collisions here too!
 applyTimeEvolution :: Float -> State (PT.Gr PointMass Spring) ()
 applyTimeEvolution timeStep = do
-    g <- get
-    put $ nmap (\(PointMass p v m) -> PointMass (p .+ (v .* timeStep)) v m) g
-    g <- get
-    put $ nmap bounce g
+    modify $ nmap (\(PointMass p v m) -> PointMass (p .+ (v .* timeStep)) v m)
+    modify $ nmap bounce
         where
             bounce :: PointMass -> PointMass
             bounce = execState bounce'
@@ -94,7 +93,7 @@ applySpringForce timeStep = do
     g <- get
     let f p = do forM p $ \(spring, otherNode) ->
                     enactSpringForce timeStep (fromJust $ lab g otherNode) spring
-    put $ gmap (\(ps, n, l, ss) -> (ps, n, execState (f $ ps ++ ss) l, ss)) g
+    put $ gmap (\(ps, n, l, ss) -> (ps, n, execState (f $ nub $ ps ++ ss) l, ss)) g
 
 applyGravity :: Float -> State (PT.Gr PointMass Spring) ()
 applyGravity timeStep = do
