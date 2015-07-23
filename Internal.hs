@@ -9,6 +9,7 @@ module Internal (
     ) where
 
 import Types
+import Params
 import Vector
 import Data.Maybe
 import Data.Graph.Inductive.Graph as G
@@ -66,10 +67,27 @@ updateWorld timeStep = do
                         applySpringForce timeStep
                         applyGravity timeStep
 
+-- Collisions here too!
 applyTimeEvolution :: Float -> State (PT.Gr PointMass Spring) ()
 applyTimeEvolution timeStep = do
     g <- get
     put $ nmap (\(PointMass p v m) -> PointMass (p .+ (v .* timeStep)) v m) g
+    g <- get
+    put $ nmap bounce g
+        where
+            bounce :: PointMass -> PointMass
+            bounce = execState bounce'
+                where
+                    bounce' :: State PointMass ()
+                    bounce' = do
+                        (PointMass p@(Vector2D opx opy) (Vector2D ovx ovy) m) <- get
+                        let vx = if 0 < opx && opx < fromIntegral world_w
+                                 then ovx
+                                 else (-ovx)
+                        let vy = if 0 < opy && opy < fromIntegral world_h
+                                 then ovy
+                                 else (-ovy)
+                        put $ PointMass p (Vector2D vx vy) m
 
 applySpringForce :: Float -> State (PT.Gr PointMass Spring) ()
 applySpringForce timeStep = do
