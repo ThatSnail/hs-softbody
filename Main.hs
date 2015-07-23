@@ -51,7 +51,7 @@ step timeStep = do
 -- Main loop includes drawing and stuff
 loop :: Canvas -> State World (IO ())
 loop can = do
-    step 0.05
+    step 0.1
     world <- get
     return $ do
         render can (drawWorld world)
@@ -62,4 +62,4 @@ main = do
     canvas <- mkCanvas 500 500
     addChild canvas documentBody
     Just can <- getCanvas canvas
-    evalState (loop can) testWorldCircle
+    evalState (loop can) testWorldBlob
