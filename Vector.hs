@@ -1,5 +1,5 @@
 module Vector (
-      Vector ((.+), (.-), (.*), mag)
+      Vector ((.+), (.-), (.*) , (./), mag)
     , Vector2D (Vector2D)
     , Vector2DP (Vector2DP)
     , rp2
@@ -13,6 +13,8 @@ class Vector v where
     (.-) :: v -> v -> v
     v1 .- v2 = v1 .+ (negate v2)
     (.*) :: v -> Float -> v
+    (./) :: v -> Float -> v
+    v1 ./ c = v1 .* (1 / c)
     mag :: v -> Float
     negate :: v -> v
 
