@@ -27,7 +27,7 @@ data PointMass = PointMass {
 data Spring = Spring {
       springConst :: Float
     , eqDist      :: Float
-    , damping     :: Float
+    , damping     :: Float -- Damping ratio
     }
 
 -- A World is a wrapper around a DynGraph, plus some world-y information
@@ -113,6 +113,6 @@ enactSpringForce timeStep (PointMass op _ _) (Spring k eq damping) = do
        forceMag = -k * distFromEq
        acc = forceMag / m
        accVec = Vector2DP acc angleOtherToMe
-       dampAccVec = v .* (-damping) ./ m
+       dampAccVec = v .* (2 * (sqrt $ k * m) * (-damping)) ./ m
        nv = v .+ (((pr2 accVec) .+ dampAccVec) .* timeStep)
     in put $ PointMass p nv m
