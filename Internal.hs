@@ -1,7 +1,7 @@
 module Internal (
-      PointMass ( PointMass )
-    , Spring ( Spring )
-    , World ( World )
+      PointMass ( PointMass, pos, vel )
+    , Spring ( Spring, springConst, damping )
+    , World ( World, graph )
     , makeEmptyWorld
     , insPointMass
     , insSpring
@@ -22,14 +22,14 @@ data PointMass = PointMass {
         pos :: Vector2D
       , vel :: Vector2D
       , mass :: Mass
-    }
+    } deriving (Show)
 
 -- A Spring is connected to two PointMasses
 data Spring = Spring {
       springConst :: Float
     , eqDist      :: Float
     , damping     :: Float -- Damping ratio
-    } deriving (Eq)
+    } deriving (Eq, Show)
 
 -- A World is a wrapper around a DynGraph, plus some world-y information
 data World = World {
@@ -65,28 +65,30 @@ updateWorld timeStep = do
     put $ World (execState update g)
         where
             update = do applyTimeEvolution timeStep
-                        applySpringForce timeStep
+--                        applySpringForce timeStep
                         applyGravity timeStep
 
 -- Collisions here too!
 applyTimeEvolution :: Float -> State (PT.Gr PointMass Spring) ()
 applyTimeEvolution timeStep = do
-    modify $ nmap (\(PointMass p v m) -> PointMass (p .+ (v .* timeStep)) v m)
-    modify $ nmap bounce
-        where
-            bounce :: PointMass -> PointMass
-            bounce = execState bounce'
-                where
-                    bounce' :: State PointMass ()
-                    bounce' = do
-                        (PointMass p@(Vector2D opx opy) (Vector2D ovx ovy) m) <- get
-                        let vx = if 0 < opx && opx < fromIntegral world_w
-                                 then ovx
-                                 else (-ovx)
-                        let vy = if 0 < opy && opy < fromIntegral world_h
-                                 then ovy
-                                 else (-ovy)
-                        put $ PointMass p (Vector2D vx vy) m
+    g <- get
+    put $ nmap f g
+        where 
+            f :: PointMass -> PointMass
+            f (PointMass (Vector2D opx opy) (Vector2D ovx ovy) m) =
+                let (mpx, mpy) = (opx + ovx, opy + ovy)
+                    (mvx, mvy) = (ovx, ovy)
+                    (px, vx) = if mpx < 0
+                               then (-mpx, -mvx)
+                               else (if mpx > world_w
+                                     then (world_w - (mpx - world_w), -mvx)
+                                     else (mpx, mvx))
+                    (py, vy) = if mpy < 0
+                               then (-mpy, -mvy)
+                               else (if mpy > world_h
+                                     then (world_h - (mpy - world_h), -mvy)
+                                     else (mpy, mvy))
+                in PointMass (Vector2D px py) (Vector2D vx vy) m
 
 applySpringForce :: Float -> State (PT.Gr PointMass Spring) ()
 applySpringForce timeStep = do
