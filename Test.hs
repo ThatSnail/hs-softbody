@@ -24,7 +24,7 @@ testWorld = execState f makeEmptyWorld
 testWorldCircle :: World
 testWorldCircle = execState f makeEmptyWorld
     where
-        f = let nodeCount = 8
+        f = let nodeCount = 4
                 r = 100
                 (cx, cy) = (200, 200)
                 spring = Spring 1 50 0
@@ -40,11 +40,12 @@ testWorldCircle = execState f makeEmptyWorld
 testWorldBlob :: World
 testWorldBlob = execState f makeEmptyWorld
     where
-        f = let nodeCount = 8
+        f = let nodeCount = 16
                 r1 = 100
                 r2 = 150
                 (cx, cy) = (200, 200)
-                spring = Spring 5 100 0
+                innerSpring = Spring 0.3 50 0.5
+                outerSpring = Spring 1 50 0.5
                 rotate n = take . length <*> drop n . cycle
             in do
             nodeList1 <- T.forM (drop 1 [0, 2 * pi / nodeCount .. 2 * pi]) $ \angle ->
@@ -57,8 +58,8 @@ testWorldBlob = execState f makeEmptyWorld
                                                                ((sin angle) * r2 + cy))
                                                      (Vector2D 0 0)
                                                      1
-            M.sequence $ zipWith (insSpring spring) <*> rotate 1 $ nodeList1
-            M.sequence $ zipWith (insSpring spring) <*> rotate 1 $ nodeList2
-            M.sequence $ zipWith (insSpring spring) nodeList1 nodeList2
-            M.sequence $ zipWith (insSpring spring) (rotate 1 nodeList1) nodeList2
-            M.sequence $ zipWith (insSpring spring) nodeList1 (rotate 1 nodeList2)
+            M.sequence $ zipWith (insSpring outerSpring) <*> rotate 1 $ nodeList1
+            M.sequence $ zipWith (insSpring outerSpring) <*> rotate 1 $ nodeList2
+            M.sequence $ zipWith (insSpring innerSpring) nodeList1 nodeList2
+            M.sequence $ zipWith (insSpring innerSpring) (rotate 1 nodeList1) nodeList2
+            M.sequence $ zipWith (insSpring innerSpring) nodeList1 (rotate 1 nodeList2)
