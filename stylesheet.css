@@ -1,0 +1,33 @@
+h1 {
+    font: 24px sans-serif;
+}
+
+a, p {
+    font: 12px sans-serif;
+}
+
+.drawingArea {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    width: 800px;
+    height: 600px;
+    border: 2px solid black;
+}
+
+.docsArea {
+    margin: 20px;
+    position: absolute;
+    left: 850px;
+    width: auto;
+    height: 50%;
+}
+
+.buttonsArea {
+    margin: 20px;
+    position: absolute;
+    left: 850px;
+    top: 50%;
+    width: auto;
+    height: 40%;
+}

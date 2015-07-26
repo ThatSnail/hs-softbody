@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="./softbody.js"></script>
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+<body>
+<div class="drawingArea">
+    <canvas id="canvas" width="800" height="600">
+    </canvas>
+</div>
+<div class="docsArea">
+    <h1>Softbody Physics</h1>
+    <p>
+        Attempt at a very simple softbody engine.<br><br>A system is simulated with nodes, connected together by springs.  Every timestep, the force of gravity is applied to nodes, and the spring force (by Hooke's law) is applied to nodes connected by lines.  A final force, viscous damping, is applied along each spring, proportional to the velocity of the node.<br><br>Click one of the buttons below to load a softbody.  Drag the mouse in the engine to attract nodes.<br><br><a href="https://github.com/ThatSnail/hs-softbody">github</a><br><br>written in haskell, compiled with <a href="http://haste-lang.org">Haste</a><br>mit license 2015
+    </p>
+</div>
+<div class="buttonsArea">
+    <input type="button" id="btnRod" value="Rod">
+    <input type="button" id="btnCircle" value="Circle">
+    <input type="button" id="btnRigidSkin" value="Rigid Skin">
+    <input type="button" id="btnBlob" value="Blob">
+    <input type="button" id="btnGrid" value="Grid">
+</div>
+</body>
+</html>
